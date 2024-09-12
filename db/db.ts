@@ -1,8 +1,8 @@
 import { Kysely } from "kysely"
-import { NeonDialect } from "kysely-neon"
+import { NeonHTTPDialect } from "kysely-neon"
 import { DB } from './kysely-types'
 
-export const dialect = new NeonDialect({
+export const dialect = new NeonHTTPDialect({
     connectionString: process.env.DATABASE_URL
 })
 
