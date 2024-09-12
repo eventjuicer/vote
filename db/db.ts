@@ -1,14 +1,9 @@
-import { Kysely, PostgresDialect } from "kysely"
-import { Pool } from "@neondatabase/serverless"
-import type {Database} from "./kysely-types"
+import { Kysely } from "kysely"
+import { NeonDialect } from "kysely-neon"
+import { DB } from './kysely-types'
 
-const dialect = new PostgresDialect({
-  pool: new Pool({
-    host: process.env.DATABASE_HOST,
-    database: process.env.DATABASE_NAME,
-    user: process.env.DATABASE_USER,
-    password: process.env.DATABASE_PASSWORD,
-  })
+export const dialect = new NeonDialect({
+    connectionString: process.env.DATABASE_URL
 })
 
-export const db = new Kysely<Database>({dialect})
+export const db = new Kysely<DB>({dialect})
