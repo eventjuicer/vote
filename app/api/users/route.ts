@@ -22,7 +22,5 @@ export async function GET() {
 }
 
 
-export const config = {
-    runtime: 'edge',
-    regions: ['fra1']
-  };
+export const runtime = "edge"
+export const preferredRegion = ["fra1"]
