@@ -6,10 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "update-kysely-types": "env-cmd -f .env.local kysely-codegen --out-file ./db/kysely-types.ts --exclude-pattern spatial_ref_sys"
   },
   "dependencies": {
-    "@vercel/postgres": "^0.10.0",
+    "@neondatabase/serverless": "^0.9.5",
     "kysely": "^0.27.4",
     "next": "14.2.10",
     "next-auth": "^5.0.0-beta.20",
@@ -25,6 +26,9 @@
     "eslint-config-next": "14.2.10",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5",
+    "env-cmd": "^10.1.0",
+    "kysely-codegen": "^0.10.0",
+    "pg": "^8.9.0"
   }
 }

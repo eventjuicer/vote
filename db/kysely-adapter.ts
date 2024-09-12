@@ -1,12 +1,11 @@
-import { Kysely, SqliteAdapter } from "kysely"
+import { Kysely } from "kysely"
 
 import {
   type Adapter,
   type AdapterUser,
   type AdapterAccount,
   type AdapterSession,
-  type VerificationToken,
-  isDate,
+  type VerificationToken
 } from "@auth/core/adapters"
 
 export interface Database {
@@ -16,36 +15,13 @@ export interface Database {
   VerificationToken: VerificationToken
 }
 
-export const format = {
-  from<T>(object?: Record<string, any>): T {
-    const newObject: Record<string, unknown> = {}
-    for (const key in object) {
-      const value = object[key]
-      if (isDate(value)) newObject[key] = new Date(value)
-      else newObject[key] = value
-    }
-    return newObject as T
-  },
-  to<T>(object: Record<string, any>): T {
-    const newObject: Record<string, unknown> = {}
-    for (const [key, value] of Object.entries(object))
-      newObject[key] = value instanceof Date ? value.toISOString() : value
-    return newObject as T
-  },
-}
-
 export function KyselyAdapter(db: Kysely<Database>): Adapter {
   const { adapter } = db.getExecutor()
   const { supportsReturning } = adapter
-  const isSqlite = adapter instanceof SqliteAdapter
-  /** If the database is SQLite, turn dates into an ISO string  */
-  const to = isSqlite ? format.to : <T>(x: T) => x as T
-  /** If the database is SQLite, turn ISO strings into dates */
-  const from = isSqlite ? format.from : <T>(x: T) => x as T
   return {
     async createUser(data) {
       const user = { ...data, id: crypto.randomUUID() }
-      await db.insertInto("User").values(to(user)).executeTakeFirstOrThrow()
+      await db.insertInto("User").values(user).executeTakeFirstOrThrow()
       return user
     },
     async getUser(id) {
@@ -55,7 +31,7 @@ export function KyselyAdapter(db: Kysely<Database>): Adapter {
         .where("id", "=", id)
         .executeTakeFirst()
       if (!result) return null
-      return from(result)
+      return result
     },
     async getUserByEmail(email) {
       const result = await db
@@ -64,7 +40,7 @@ export function KyselyAdapter(db: Kysely<Database>): Adapter {
         .where("email", "=", email)
         .executeTakeFirst()
       if (!result) return null
-      return from(result)
+      return result
     },
     async getUserByAccount({ providerAccountId, provider }) {
       const result = await db
@@ -75,10 +51,10 @@ export function KyselyAdapter(db: Kysely<Database>): Adapter {
         .where("Account.provider", "=", provider)
         .executeTakeFirst()
       if (!result) return null
-      return from(result)
+      return result
     },
     async updateUser({ id, ...user }) {
-      const userData = to(user)
+      const userData = user
       const query = db.updateTable("User").set(userData).where("id", "=", id)
       const result = supportsReturning
         ? query.returningAll().executeTakeFirstOrThrow()
@@ -91,7 +67,7 @@ export function KyselyAdapter(db: Kysely<Database>): Adapter {
                 .where("id", "=", id)
                 .executeTakeFirstOrThrow()
             )
-      return from(await result)
+      return await result
     },
     async deleteUser(userId) {
       await db
@@ -102,7 +78,7 @@ export function KyselyAdapter(db: Kysely<Database>): Adapter {
     async linkAccount(account) {
       await db
         .insertInto("Account")
-        .values(to(account))
+        .values(account)
         .executeTakeFirstOrThrow()
       return account
     },
@@ -114,7 +90,7 @@ export function KyselyAdapter(db: Kysely<Database>): Adapter {
         .executeTakeFirstOrThrow()
     },
     async createSession(session) {
-      await db.insertInto("Session").values(to(session)).execute()
+      await db.insertInto("Session").values(session).execute()
       return session
     },
     async getSessionAndUser(sessionToken) {
@@ -128,10 +104,10 @@ export function KyselyAdapter(db: Kysely<Database>): Adapter {
       if (!result) return null
       const { userId, expires, ...user } = result
       const session = { sessionToken, userId, expires }
-      return { user: from(user), session: from(session) }
+      return { user, session }
     },
     async updateSession(session) {
-      const sessionData = to(session)
+      const sessionData = session
       const query = db
         .updateTable("Session")
         .set(sessionData)
@@ -145,7 +121,7 @@ export function KyselyAdapter(db: Kysely<Database>): Adapter {
               .where("Session.sessionToken", "=", sessionData.sessionToken)
               .executeTakeFirstOrThrow()
           })
-      return from(result)
+      return result
     },
     async deleteSession(sessionToken) {
       await db
@@ -154,7 +130,7 @@ export function KyselyAdapter(db: Kysely<Database>): Adapter {
         .executeTakeFirstOrThrow()
     },
     async createVerificationToken(data) {
-      await db.insertInto("VerificationToken").values(to(data)).execute()
+      await db.insertInto("VerificationToken").values(data).execute()
       return data
     },
     async useVerificationToken({ identifier, token }) {
@@ -175,21 +151,8 @@ export function KyselyAdapter(db: Kysely<Database>): Adapter {
               return res
             })
       if (!result) return null
-      return from(result)
+      return result
     },
   }
 }
 
-/**
- * Wrapper over the original `Kysely` class in order to validate the passed in
- * database interface. A regular Kysely instance may also be used, but wrapping
- * it ensures the database interface implements the fields that Auth.js
- * requires. When used with `kysely-codegen`, the `Codegen` type can be passed as
- * the second generic argument. The generated types will be used, and
- * `KyselyAuth` will only verify that the correct fields exist.
- */
-export class KyselyAuth<DB extends T, T = Database> extends Kysely<DB> {}
-
-export type Codegen = {
-  [K in keyof Database]: { [J in keyof Database[K]]: unknown }
-}
