@@ -6,4 +6,10 @@ import { db } from "@/db/db"
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [LinkedIn],
   adapter: KyselyAdapter(db),
+  callbacks: {
+    session({ session, user }) {
+      session.user.id = user.id
+      return session
+    },
+  }
 })
