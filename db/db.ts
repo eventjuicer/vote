@@ -5,7 +5,7 @@ import { Pool } from "pg"
 // that can be used to provide additional type-safety.
 // While using it isn't required, it is recommended as it will verify
 // that the database interface has all the fields that Auth.js expects.
-import { KyselyAuth } from "@auth/kysely-adapter"
+import { KyselyAuth } from "@/db/kysely"
  
 import type { GeneratedAlways } from "kysely"
  
