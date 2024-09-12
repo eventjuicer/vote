@@ -1,5 +1,5 @@
 import { PostgresDialect } from "kysely"
-import { Pool } from "pg"
+import { Pool } from "@vercel/postgres"
  
 // This adapter exports a wrapper of the original `Kysely` class called `KyselyAuth`,
 // that can be used to provide additional type-safety.
