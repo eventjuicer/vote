@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@auth/kysely-adapter": "^1.4.2",
-    "kysely": "^0.27.4",
+    "kysely": "~0.26.1",
     "next": "14.2.10",
     "next-auth": "^5.0.0-beta.20",
     "pg": "^8.12.0",
@@ -26,10 +26,5 @@
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
-  },
-  "overrides": {
-    "@auth/kysely-adapter": {
-      "kysely": "^0.27.4"
-    }
   }
 }
