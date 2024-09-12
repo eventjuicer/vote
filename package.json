@@ -26,5 +26,10 @@
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
+  },
+  "overrides": {
+    "@auth/kysely-adapter": {
+      "kysely": "^0.27.4"
+    }
   }
 }
