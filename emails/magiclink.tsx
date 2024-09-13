@@ -1,3 +1,6 @@
+import * as React from "react";
+import { render } from '@react-email/render';
+
 import {
     Body,
     Container,
@@ -12,7 +15,6 @@ import {
     Section,
     Text,
   } from "@react-email/components";
-  import * as React from "react";
   
   interface SlackConfirmEmailProps {
     validationCode?: string;
@@ -22,7 +24,7 @@ import {
     ? `https://${process.env.VERCEL_URL}`
     : "";
   
-  export const SlackConfirmEmail = ({
+const SlackConfirmEmail = ({
     validationCode,
   }: SlackConfirmEmailProps) => (
     <Html>
@@ -159,8 +161,15 @@ import {
     validationCode: "DJZ-TLX",
   } as SlackConfirmEmailProps;
   
-  export default SlackConfirmEmail;
+
+  export const generateHtmlVersion = async (url: string) => await render(<SlackConfirmEmail validationCode={url} />, {
+    pretty: true,
+  })
   
+  export const generateTextVersion = async (url: string) => await render(<SlackConfirmEmail validationCode={url} />, {
+    plainText: true,
+  })
+
   const footerText = {
     fontSize: "12px",
     color: "#b7b7b7",
